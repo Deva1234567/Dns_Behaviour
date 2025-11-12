@@ -1,0 +1,14 @@
+###############################################################
+# Detection: High NXDOMAIN Rate per Client
+# MITRE ATT&CK: T1568.002 – Dynamic Resolution
+# Purpose: Detect excessive NXDOMAIN DNS responses from a host,
+#          indicating DGA or misconfigured applications.
+###############################################################
+
+sourcetype=dns_custom
+| where rcode="NXDOMAIN"
+| stats count as nxd_count by src_ip
+| where nxd_count > 30
+| sort - nxd_count
+| rename src_ip as "Source IP", nxd_count as "NXDOMAIN Count"
+| fields "Source IP", "NXDOMAIN Count"
