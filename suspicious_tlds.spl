@@ -1,0 +1,14 @@
+###############################################################
+# Detection: Suspicious Top-Level Domain Queries
+# MITRE ATT&CK: T1071.004 – Application Layer Protocol: DNS
+# Purpose: Identify domains using rare or suspicious TLDs
+#          that may be used for C2 or tunneling.
+###############################################################
+
+sourcetype=dns_custom
+| eval tld=lower(mvindex(split(qname, "."),-1))
+| search tld IN ("xyz","top","tk","club","click","work","online")
+| stats count by src_ip, qname, tld
+| sort - count
+| rename src_ip as "Source IP", qname as "Queried Domain", tld as "TLD", count as "Query Count"
+| fields "Source IP", "Queried Domain", "TLD", "Query Count"
