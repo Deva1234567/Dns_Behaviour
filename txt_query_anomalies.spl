@@ -1,0 +1,14 @@
+###############################################################
+# Detection: TXT Record Anomalies
+# MITRE ATT&CK: T1048 – Exfiltration Over Alternative Protocol: DNS
+# Purpose: Detect hosts issuing excessive TXT record lookups,
+#          which may indicate data exfiltration over DNS.
+###############################################################
+
+sourcetype=dns_custom
+| where qtype_text="TXT"
+| stats count by src_ip, dest_ip
+| where count > 20
+| sort - count
+| rename src_ip as "Source IP", dest_ip as "Destination IP", count as "TXT Query Count"
+| fields "Source IP", "Destination IP", "TXT Query Count"
