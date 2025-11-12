@@ -1,1 +1,14 @@
 
+###############################################################
+# Detection: High Unique Subdomains per Client
+# MITRE ATT&CK: T1071.004 – Application Layer Protocol: DNS
+# Purpose: Identify clients generating large numbers of unique
+#          subdomains, indicating tunneling or DGA behavior.
+###############################################################
+
+sourcetype=dns_custom
+| stats dc(qname) as unique_queries by src_ip
+| where unique_queries > 50
+| sort - unique_queries
+| rename src_ip as "Source IP", unique_queries as "Unique DNS Queries"
+| fields "Source IP", "Unique DNS Queries"
