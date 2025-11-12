@@ -1,0 +1,14 @@
+###############################################################
+# Detection: Randomized or Encoded Subdomain Patterns
+# MITRE ATT&CK: T1071 – Command & Control: DNS
+# Purpose: Identify subdomains with high entropy or random patterns
+#          such as base64 strings used in DNS tunneling or DGAs.
+###############################################################
+
+sourcetype=dns_custom
+| eval first_label=mvindex(split(qname, "."),0)
+| where match(first_label, "^[A-Za-z0-9+/]{10,}$")
+| stats count by src_ip, qname
+| sort - count
+| rename src_ip as "Source IP", qname as "Suspicious Query Name", count as "Occurrences"
+| fields "Source IP", "Suspicious Query Name", "Occurrences"
